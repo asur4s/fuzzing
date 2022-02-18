@@ -1,9 +1,11 @@
 # 个人博客
 
 
+
 ## 2022
 
 **二月**
+- [【Haskell基础2】-HelloWorld](./docs/page-2.md)
 - [【Haskell基础1】-环境搭建](./docs/page-1.md)
 
 ---
