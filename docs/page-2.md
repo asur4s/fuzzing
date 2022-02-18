@@ -23,15 +23,63 @@ $> runhaskell helloworld.hs
 
 # 代码块
 
-写了上面的例子，我们会迫不及待的想要增加一些功能，向下面这样的功能。
+写了上面的例子，我们会迫不及待的想要增加一些功能。除了输出 `Hello World`，还想输出 1。我们可能就会构造出下面这种代码：
 ```haskell
 main = print 1
+       print 2
 ```
 
+上面的写法是错的！！！
+
+Haskell 如果想要写多行的代码，必须使用 do 来标记代码块。
+```haskell
+main = do
+    print "Hello world"
+    print 1
+
+    if 1 == 1
+        then do
+            print 2
+    else
+        print 3
+
+    let a = 1 + 1
+    print a
+```
+需要注意的是在 Python 中，`if` 语句后有冒号，但在 Haskell 中没有冒号，而是用 then。
+
+运行结果如下所示：
+```haskell
+$> "Hello world"
+1
+2
+2
+```
+> PS：Haskell 是没有循环的，没有 for，也没有 while。你能想象一个没有循环的世界吗？
 
 # 函数
 
+在 Haskell 中，函数是第一等对象，是最复杂的。这里只简单的列举几种常见的函数形式。
+- 无参数函数
+- 有参数函数
+```haskell
+main = getting_started   -- main 和 getting_started 都是函数名，Haskell的函数名首字母必须小写。
+                         -- Haskell以main作为函数入口，运行脚本后会自动运行main函数。
 
+getting_started = do     -- 将一系列顺序操作的语句组成一起作为一个语句块
+    -- 简单函数
+    func1                       -- 无参数函数
+    print (func2 2)             -- 有参数函数
+    func3
+    -- func3 = print "func3"    -- 只能在最外层定义函数
+
+func1 = print "func1"
+func2 x = x * 2
+func3 = do
+    print "func3"
+    print "Hello world"
+```
+在`func2 x = x * 2`中，第一个 `x` 表示参数为 `x`，第二个 `x` 和 2 组成表达式，`x*2` 会被作为返回值返回。
 
 ---
 
