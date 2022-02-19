@@ -6,8 +6,8 @@
 
 **二月**
 - [【Fuzzing 1】-Why Fuzzing？什么是 Fuzzing？](./docs/page-3.md)
-- [【Haskell基础2】-HelloWorld](./docs/page-2.md)
-- [【Haskell基础1】-环境搭建](./docs/page-1.md)
+- [【Haskell基础 2】-HelloWorld](./docs/page-2.md)
+- [【Haskell基础 1】-环境搭建](./docs/page-1.md)
 
 ---
 
