@@ -44,11 +44,18 @@ fuzzing 的中文叫做模糊测试，模糊测试是一个安全漏洞发现学
     - David Zimmer 发布了 COMRaider，H.D.Moore 发布了 AxMan。这两个工具都用于对 IE 中的 ActiveX 控件进行模糊测试。 
 - 2008年，Mozilla 安全团队发布了 jsfunfuzz 和 DOMfuzz，和 2002 年发布的 SPIKE 一样，都是**基于模板的模糊测试器**。使用该工具挖掘漏洞依赖于对语法和目标原理的理解，才能构造出好的语法模板。
 - 2012年，USENIX 安全顶会上发布一篇论文“Fuzzing with code fragments”，并公布了一款名为 LangFuzz 的工具，该工具主要对语法解析引擎进行模糊测试。
-- 2013年，Michal Zalewski（lcamtuf）开发的 afl-fuzz 发布了，该软件首次采用源码编译插桩和 QEMU 模式来实现代码覆盖引导 Fuzzing ，并且还采用了遗传算法来提高测试用例的代码覆盖率。Fuzzing 技术发展历程中最重要的一次里程碑。AFL 主要被用于文件 Fuzz。
+- 2013年，Google 的 Michal Zalewski（lcamtuf）开发的 afl-fuzz 发布了，这是一款**基于覆盖率引导**的模糊测试工具，该软件首次采用源码编译插桩和 QEMU 模式来实现代码覆盖引导 Fuzzing ，并且还采用了遗传算法来提高测试用例的代码覆盖率。Fuzzing 技术发展历程中最重要的一次里程碑。AFL 主要被用于文件 Fuzz，在 2014 年到 2015 年之间挖到了不少开源软件的 0 day。
+- 2015年，Google 开源了 syzkaller，这是一款用于 Fuzzing Linux 内核的工具，漏洞产出特别高。该工具通过定义函数调用模板，在模板中定义系统调用参数类型，从而解决系统调用的顺序依赖和值依赖问题。
+- 2016年，Google 提出了“结构感知型fuzz”，并开源了相关的工具——libprotobuf-mutator。
+- 2018年，Google 的 Samuel Groß 开源了 fuzzilli，该工具是一款 JS 语法 Fuzz 工具，整合了语法编译、模板生成、覆盖引导等多种技术。它使用自定义的中间语言用于语法编译，再将变异后的中间语言转换成 JS 代码。
+- 2019年，有两款 Fuzz 工具发布，他们都引用了 2012 年的论文“Fuzzing with code fragments”中的思想。  
 
 用图片展示 Fuzzing 的发展史（1988 -> 2007），图片来自于《模糊测试：强制挖掘安全漏洞的利器》
 
 ![1988-2007中Fuzzing的发展史](./images/1.jpg)
+
+
+
 
 
 
