@@ -12,7 +12,7 @@ TODO:
 ## 2022
 
 **二月**
-- 【Fuzzing 2】漏洞挖掘的流程是怎样的？
+- [【Fuzzing 2】-漏洞挖掘的流程是怎样的？](./docs/page-4.md)
 - [【Fuzzing 1】-Why Fuzzing？什么是 Fuzzing？](./docs/page-3.md)
 - [【Haskell基础 2】-HelloWorld](./docs/page-2.md)
 - [【Haskell基础 1】-环境搭建](./docs/page-1.md)
