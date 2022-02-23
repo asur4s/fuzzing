@@ -1,11 +1,25 @@
 # 个人博客
 
-TODO: 
+TODO:
+- 【理解漏洞】堆溢出（Heap Exhaustion）
+- 【理解漏洞】栈溢出（Stack Exhaustion）
+- 【理解漏洞】内存泄漏（Memory Leak）
+- 【理解漏洞】双重释放（Double Free）
+- 【理解漏洞】越界写（Out of bound Write）
+- 【理解漏洞】越界读（Out of bound Read）
+- 【理解漏洞】整数下溢（Integer Underflow）
+- 【理解漏洞】整数溢出（Integer Overflow） 
+- 【理解漏洞】Why？
 - 【Fuzzing x】套接字模糊测试3
 - 【Fuzzing x】套接字模糊测试2
 - 【Fuzzing x】套接字模糊测试1
-- 【Fuzzing 6】AFL例子2-Harness编写
-- 【Fuzzing 5】AFL主要组件及其交互
+- 【Fuzzing x】AFL例子2-Harness编写
+- 【Fuzzing x】AFL主要组件及其交互
+- 【Fuzzing x】AFL例子4-对FFMpeg进行模糊测试
+- 【Fuzzing x】AFL例子3-对TCPDump进行模糊测试
+- 【Fuzzing x】对crash分类
+- 【Fuzzing x】AFL例子2-挖掘不同类型二进制漏洞
+- 【Haskell】
 
 ## 2022
 
