@@ -6,12 +6,11 @@ TODO:
 - 【Fuzzing x】套接字模糊测试1
 - 【Fuzzing 6】AFL例子2-Harness编写
 - 【Fuzzing 5】AFL主要组件及其交互
-- 
 
 ## 2022
 
 **二月**
-- [【Fuzzing 4】AFL例子1-挖掘简单二进制漏洞]()
+- [【Fuzzing 4】-AFL例子1-挖掘简单二进制漏洞]()
 - [【Fuzzing 3】-AFL 环境搭建](./docs/page-5.md)
 - [【Fuzzing 2】-漏洞挖掘的流程是怎样的？](./docs/page-4.md)
 - [【Fuzzing 1】-Why Fuzzing？什么是 Fuzzing？](./docs/page-3.md)
