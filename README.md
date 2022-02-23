@@ -19,7 +19,7 @@ TODO:
 - 【Fuzzing x】AFL例子3-对TCPDump进行模糊测试
 - 【Fuzzing x】对crash分类
 - 【Fuzzing x】AFL例子2-挖掘不同类型二进制漏洞
-- 【Haskell】
+- 【Haskell】简单理解函数式编程
 
 ## 2022
 
