@@ -9,7 +9,6 @@ TODO:
 - 【理解漏洞】越界读（Out of bound Read）
 - 【理解漏洞】整数下溢（Integer Underflow）
 - 【理解漏洞】整数溢出（Integer Overflow） 
-- 【理解漏洞】Why？
 - 【Fuzzing x】套接字模糊测试3
 - 【Fuzzing x】套接字模糊测试2
 - 【Fuzzing x】套接字模糊测试1
@@ -24,7 +23,8 @@ TODO:
 ## 2022
 
 **二月**
-- [【Fuzzing 4】-AFL例子1-挖掘简单二进制漏洞]()
+- 【Fuzzing 4】-AFL例子1-挖掘简单二进制漏洞
+- [【理解漏洞】Why?](./docs/page-7.md)
 - [【Fuzzing 3】-AFL 环境搭建](./docs/page-5.md)
 - [【Fuzzing 2】-漏洞挖掘的流程是怎样的？](./docs/page-4.md)
 - [【Fuzzing 1】-Why Fuzzing？什么是 Fuzzing？](./docs/page-3.md)
