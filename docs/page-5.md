@@ -45,7 +45,7 @@ git clone https://github.com/AFLplusplus/AFLplusplus
 然后进入AFL++的文件夹进行编译安装
 ```bash
 cd AFLplusplus
-git checkout 2.68c      # 切换到特定版本
+git checkout 2.68c      # 切换到特定版本，为后面做准备
 
 make distrib            # 全部编译
 sudo make install
