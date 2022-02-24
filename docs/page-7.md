@@ -1,14 +1,15 @@
 
-在知乎上有这么一个问题——零基础如何学习挖漏洞？TK教主的答案如下：
-> 我是先看漏洞公告，2002年之前绿盟漏洞库中的每一条我都看过，在看的过程中理解漏洞。然后看别人的漏洞分析文档，在看的过程中学习调试和汇编指令。最后学编程。
+这里主要基于[hardik05](https://github.com/hardik05)师傅的[Damn_Vulnerable_C_Program](https://github.com/hardik05/Damn_Vulnerable_C_Program)项目和其配套的视频（咖喱味的英语有点头大），还采用了afl-training项目的源码。
 
-再结合《[【Fuzzing 2】-漏洞挖掘的流程是怎样的？](./docs/page-4.md)》文章中所提到的漏洞挖掘三个步骤：
-```
-1、枚举入口点（即与应用程序交互的方式）。
-2、考虑对手想要表现出的不安全状态（即脆弱性）。
-3、使用已识别的入口点操作应用程序以达到不安全的状态。
-```
+本篇文章的主要目标是熟悉 AFL 的基本使用，步子迈大了容易扯着蛋，一步步来。
 
-Fuzzing 主要是解决第三步，但第一步和第二步却无能为力。如果不指定程序如何输入（或者输入什么），Fuzzer 将无法工作，也就无法得到崩溃。如果对不安全状态不熟悉，即使 crash 中存在漏洞，那你无法发现它。
 
-由此可见理解漏洞的重要性。
+
+
+
+
+参考文档：
+- [[Fuzzing with AFL] Fuzzing simple C program with AFL on Linux](https://www.youtube.com/watch?v=NiGC1jxFx78&list=PLHGgqcJIME5kYhOSdJjvtVS4b4_OXDqM-&index=2)
+- [Damn_Vulnerable_C_Program](https://github.com/hardik05/Damn_Vulnerable_C_Program)
+- [Fuzzing with AFL workshop](https://github.com/mykter/afl-training)
+

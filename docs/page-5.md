@@ -32,24 +32,48 @@ sudo apt-upgrade
 
 切换源之后，就可以安装相关的依赖了。
 ```bash
-sudo apt-get update
-sudo apt-get install -y build-essential python3-dev automake cmake git flex bison libglib2.0-dev libpixman-1-dev python3-setuptools
-# try to install llvm 11 and install the distro default if that fails
-sudo apt-get install -y lld-11 llvm-11 llvm-11-dev clang-11 || sudo apt-get install -y lld llvm llvm-dev clang
-sudo apt-get install -y gcc-$(gcc --version|head -n1|sed 's/.* //'|sed 's/\..*//')-plugin-dev libstdc++-$(gcc --version|head -n1|sed 's/.* //'|sed 's/\..*//')-dev
-sudo apt-get install -y ninja-build # for QEMU mode
+sudo apt-get install git build-essential curl libssl-dev sudo libtool libtool-bin libglib2.0-dev bison flex automake python3 python3-dev python3-setuptools libpixman-1-dev gcc-9-plugin-dev cgroup-tools \
+clang-11 clang-tools-11 libc++1-11 libc++-11-dev libc++abi1-11 libc++abi-11-dev libclang1-11 libclang-11-dev libclang-common-11-dev libclang-cpp11 libclang-cpp11-dev liblld-11 liblld-11-dev liblldb-11 liblldb-11-dev libllvm11 libomp-11-dev libomp5-11 lld-11 lldb-11 python3-lldb-11 llvm-11 llvm-11-dev llvm-11-runtime llvm-11-tools
+# clang 重命名
+sudo update-alternatives --install /usr/bin/clang clang `which clang-11` 1
+sudo update-alternatives --install /usr/bin/clang++ clang++ `which clang++-11` 1
+sudo update-alternatives --install /usr/bin/llvm-config llvm-config `which llvm-config-11` 1
+sudo update-alternatives --install /usr/bin/llvm-symbolizer llvm-symbolizer `which llvm-symbolizer-11` 1
+
 git clone https://github.com/AFLplusplus/AFLplusplus
 ```
 然后进入AFL++的文件夹进行编译安装
 ```bash
 cd AFLplusplus
-make distrib        # UnicornAFL 的测试会报错，可以暂时不用管。作者只适配了 16.04 版，而我也比一定会使用，战略性放弃，可以直接 install，不会影响使用。
+git checkout 2.68c      # 切换到特定版本
+
+make distrib            # 全部编译
+sudo make install
+# 编译 LLVM mode
+cd llvm_mode
+make clean
+make all
+
+# 配置软链接
+sudo ln -s ~/Documents/AFLplusplus/afl-clang-fast /usr/local/bin/afl-clang-fast
+sudo ln -s ~/Documents/AFLplusplus/afl-clang-fast++ /usr/local/bin/afl-clang-fast++
+
+# 在使用afl-clang-fast之前，需要指定AFL_PATH，使其可以找到`afl-llvm-rt.o` 和 `afl-llvm-pass.so`
+export AFL_PATH=~/Documents/AFLplusplus
+afl-clang-fast --version # 判断 afl-clang-fast 是否安装成功。
+
+# 配置Qemu_mode
+cd qemu_mode/
+./build_qemu_support.sh
+cd qemu-3.1.1/
+sudo make install
+cd ~/Document/AFLplusplus
 sudo make install
 ```
 
 **三、测试是否安装成功**
 
-首先创建一个`in`文件夹，在in文件夹中里面创建一个文件并写入任意数据，然后使用下面的命令判断AFL是否正常安装。
+首先创建一个`in`文件夹，在in文件夹中里面创建一个文件并写入任意数据，然后使用下面的命令判断AFL是否正常安装（需要配置 Qemu mode）。
 ```bash
 sudo bash -c "echo core >/proc/sys/kernel/core_pattern"        # 修改崩溃后转储的方式。
 afl-fuzz -Q -m none -i in -o out test @@
@@ -62,3 +86,4 @@ afl-fuzz -Q -m none -i in -o out test @@
 - [Building and installing AFL++](https://github.com/AFLplusplus/AFLplusplus/blob/stable/docs/INSTALL.md)
 - [AFL++实战（一）-黑盒测试FFmpeg](https://blog.csdn.net/qq_36711003/article/details/107016408?spm=1001.2014.3001.5502)
 - [Ubuntu 20.04.3 LTS (Focal Fossa)](https://releases.ubuntu.com/20.04.3/)
+- [AFL的LLVM_Mode](https://kiprey.github.io/2020/07/AFL-LLVM-Mode/#3-afl-clang-fast-%E5%B0%8F%E5%8F%99)
