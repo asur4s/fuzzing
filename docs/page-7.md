@@ -21,7 +21,7 @@ cd afl-training/quickstart
 ```
 在 quickstart 文件夹中，已经准备好了变异使用的种子（inputs 目录下），还有用来模糊测试的源码（vulerable.c），所以我们只需要准备一个插桩后的二进制程序即可。
 
-AFL提供了编译工具（afl-gcc、afl-clang、afl-clang-fast 等等），可以将源码编译成插桩后的二进制程序。这里我们使用AFL提供的编译器来生成可执行文件：
+AFL提供了编译工具（afl-gcc、afl-clang、afl-clang-fast 等等），可以将源码编译成插桩后的二进制程序。这里我们使用 AFL 提供的编译器来生成可执行文件：
 ```bash
 CC=afl-clang-fast AFL_HARDEN=1 make
 # CC 是 Makefile 的变量，用于指定编译器。
@@ -46,6 +46,34 @@ $ afl-fuzz -i inputs -o out ./vulnerable
 
 afl-training 教程到这里就没有东西了，但总觉得缺少点什么。
 
+**1、入口点分析**
+
+入口点分析在 Web 安全中非常重要，这个步骤通常在信息搜集的时候完成。
+
+在 Web 中，我们可以通过扫描器 + 字典来确定 Web 程序的路径，从而确定入口。在二进制程序中，我们可以通过阅读文档、逆向等方式来确定程序的入口点。
+
+在这个 `vulnerable` 程序中，有详尽的文档来参考，通过阅读文档，我们即可找到所有的入口点，以及相关的功能。
+```
+Usage: ./vulnerable
+Text utility - accepts commands and data on stdin and prints results to stdout.
+Input             | Output
+------------------+-----------------------
+u <N> <string>    | Uppercased version of the first <N> bytes of <string>.
+head <N> <string> | The first <N> bytes of <string>.
+```
+从上述的文档中可知，vulnerable 程序共有两种模式，即 u 和 head 模式。u 模式可以将字符串的前 N 个字符转换成大写。head 模式可以截取字符串的前 N 个字符。
+
+程序的入口大致就是这两个位置。如果是非开源的程序，或者图形化的程序可能需要逆向来进一步确认。
+
+**2、不安全状态**
+
+我对二进制漏洞了解得不多，根据其功能只能猜测出以下漏洞：
+- 整数溢出
+- 缓冲区溢出（栈溢出和堆溢出）
+> PS：不安全状态往往是和功能相关联的（上下文型漏洞）。
+
+
+**3、路径探索**
 
 
 参考文档：
