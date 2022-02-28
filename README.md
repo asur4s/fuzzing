@@ -23,7 +23,7 @@ TODO:
 ## 2022
 
 **二月**
-- [【理解漏洞】SUSCTF-fxxkcors 分析和总结](./docs/page-8.md)——doing
+- [【理解漏洞】SUSCTF-fxxkcors 分析和总结](./docs/page-8.md)
 - [【Fuzzing 4】AFL例子1-挖掘简单二进制漏洞](./docs/page-7.md)
 - [【理解漏洞】Why?](./docs/page-6.md)
 - [【Fuzzing 3】AFL 环境搭建](./docs/page-5.md)

