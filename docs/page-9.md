@@ -77,3 +77,78 @@ AFL_HARDEN=1 afl-clang-fast harness.c library.c -o harness
 ```bash
 afl-fuzz -i in -o out ./harness
 ```
+下面是我运行 14 分钟的结果。
+
+![](./images/11.jpg)
+
+afl-fuzz 发现了 1 个 crash 案例，造成 crash 的输入为
+```
+pop!
+```
+
+
+
+# 任意输入格式
+
+接下来测试 lib_nul 函数，这个函数需要两个输入，应该如何解决呢？三个参数呢？作者给出的 harness 如下，关键在于 19 到 25 行。harness 按照 int 的大小来读取，从而将一行输入拆分成多个输入。
+```
+#include <unistd.h>
+#include <string.h>
+#include <stdio.h>
+
+#include "library.h"
+
+// fixed size buffer based on assumptions about the maximum size that is likely necessary to exercise all aspects of the target function
+#define SIZE 100
+
+int main(int argc, char* argv[]) {
+    if((argc == 2) && strcmp(argv[1], "echo") == 0) {
+        // make sure buffer is initialized to eliminate variable behaviour that isn't dependent on the input.
+        char input[SIZE] = {0};
+
+        ssize_t length;
+        length = read(STDIN_FILENO, input, SIZE);
+
+        lib_echo(input, length);
+    } else if ((argc == 2) && strcmp(argv[1], "mul") == 0) {
+        int a,b = 0;
+        read(STDIN_FILENO, &a, 4);
+        read(STDIN_FILENO, &b, 4);
+        printf("%d\n", lib_mul(a,b));
+    } else {
+        printf("Usage: %s mul|echo\n", argv[0]);
+    }
+}
+```
+如何启动这个 harness 呢？
+```bash
+afl-fuzz -i in -o out ./harness echo
+afl-fuzz -i in -o out ./harness mul
+```
+上面的 harness 测试了两个函数，需要 2 个 afl-fuzz 进程。我们还可以利用上面的思想把三个参数（input、a、b）整合到一行，将前 8 个字节用作的 `lib_mul` 的输入，并将任何剩余字节用作的输入 `lib_echo`。
+```c
+#include <stdio.h>
+#include <unistd.h>
+#include "library.h"
+
+#define SIZE 108
+
+int main(int argc, char *argv[])
+{
+    char input[SIZE] = {0};
+    int a, b;
+    read(STDIN_FILENO, &a, 4);
+    read(STDIN_FILENO, &b, 4);
+    printf("%d\n", lib_mul(a, b));
+
+    ssize_t length;
+    length = read(STDIN_FILENO, input, SIZE);
+    lib_echo(input, length);
+
+}
+```
+
+
+# 内存漏洞和功能性漏洞
+
+
