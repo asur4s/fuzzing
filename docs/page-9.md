@@ -151,4 +151,12 @@ int main(int argc, char *argv[])
 
 # 内存漏洞和功能性漏洞
 
+在 afl-training 的 harness 最后一部分，还讲到了一个关键词——功能正确性的模糊测试。
 
+在上述过程中，AFL 主要是对程序是否崩溃进行判断，并不在乎程序运行结果是否正确。那么我们如何利用模糊测试来判断 `lib_mul` 是否正确的实现了标准的乘法呢？
+
+
+
+参考文档：
+- [afl-training harness](https://github.com/mykter/afl-training/tree/main/harness)
+- [AFL-Training学习记录](https://www.anquanke.com/post/id/254167#h2-2)
