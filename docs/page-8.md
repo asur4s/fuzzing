@@ -120,7 +120,7 @@ echo file_get_contents('php://input');
 }
 ```
 
-# 简单请求：json版
+## 简单请求：json版
 
 在 fxxxCORS 中，关键的请求是向 /changeapi.php 地址发送 json 数据，但上面的例子只能发送键值对。
 
