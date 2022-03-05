@@ -116,11 +116,13 @@ AFL_USE_ASAN=1 afl-clang-fast ./harness-v1.c -I libxml2/include libxml2/.libs/li
 mkdir in
 cd in && echo "<hi><hi/>" > hi.xml && cd ..
 afl-fuzz -m none -i in/ -o out -x ~/Documents/AFLplusplus/dictionaries/xml.dict ./harness
+# -x：指定字典。afl-fuzz对紧凑类型的数据格式做了优化（images、多媒体、压缩格式），不太适合比较冗余的数据格式。
 # TODO：一直处在崩溃的状态，不懂得如何处理
 ```
 运行结果
 ![](./images/12.jpg)
 
+只跑了 2 分钟就跑出了 crash，后续一直处在产生同样的 crash。
 
 **harness-v2.c**
 
@@ -154,7 +156,39 @@ afl-fuzz -m none -i in/ -o out -x ~/Documents/AFLplusplus/dictionaries/xml.dict 
 
 # 改进Harness
 
+在 afl-training 的 answer 中，作者根据 AFL 的功能特性，改写了 harness，让他的效率可以翻 n 倍（我的测试后发现，速度为原来的 4 倍）。
+```c
+// harness-v2.c
+#include "libxml/parser.h"
+#include "libxml/tree.h"
 
+int main(int argc, char **argv) {
+    if (argc != 2){
+        return(1);
+    }
+
+    xmlInitParser();
+    while (__AFL_LOOP(1000)) {
+        xmlDocPtr doc = xmlReadFile(argv[1], NULL, 0);
+        if (doc != NULL) {
+            xmlFreeDoc(doc);
+        }
+    }
+    xmlCleanupParser();
+
+    return(0);
+}
+```
+编译，并尝试fuzz
+```bash
+AFL_USE_ASAN=1 afl-clang-fast ./harness-v3.c -I libxml2/include libxml2/.libs/libxml2.a -lz -lm -o harness
+
+afl-fuzz -m none -i in/ -o out -x ~/Documents/AFLplusplus/dictionaries/xml.dict ./harness @@ 
+```
+运行结果如下所示
+
+![](./images/13.jpg)
+只用了 30 分钟，就跑出了 2300 的路径，4 个 crash。
 
 # 语料库
 
