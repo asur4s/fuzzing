@@ -200,9 +200,376 @@ afl-fuzz -m none -i in/ -o out -x ~/Documents/AFLplusplus/dictionaries/xml.dict 
 
 目前先主要把精力集中在编写出能让 AFL 稳定且快速运行的 harness。
 
+# crash
+
+harness-v1.c 是创建 xml，而 v2 和 v3 是解析 xml，后两个的 crash 都可以通过。
+
+**harness-v1.c**
+```
+joe@joe-virtual-machine:~/Documents/afl-training/challenges/libxml2$ echo crashes/harness-v1/id\:000000\,sig\:06\,src\:000000\,time\:2340\,op\:havoc\,rep\:16 | ./harness-v1
+=================================================================
+==2024416==ERROR: AddressSanitizer: stack-buffer-overflow on address 0x7ffeef3cbf72 at pc 0x000000533fd8 bp 0x7ffeef3cbed0 sp 0x7ffeef3cbec8
+READ of size 1 at 0x7ffeef3cbf72 thread T0
+    #0 0x533fd7 in xmlStrdup /home/joe/Documents/afl-training/challenges/libxml2/libxml2/xmlstring.c:70:12
+    #1 0x4d2941 in xmlNewNode /home/joe/Documents/afl-training/challenges/libxml2/libxml2/tree.c:2236:17
+    #2 0x4c63dc in main /home/joe/Documents/afl-training/challenges/libxml2/harness-v1.c:16:27
+    #3 0x7ff4f12940b2 in __libc_start_main /build/glibc-sMfBJT/glibc-2.31/csu/../csu/libc-start.c:308:16
+    #4 0x41c61d in _start (/home/joe/Documents/afl-training/challenges/libxml2/harness-v1+0x41c61d)
+
+Address 0x7ffeef3cbf72 is located in stack of thread T0 at offset 82 in frame
+    #0 0x4c62ff in main /home/joe/Documents/afl-training/challenges/libxml2/harness-v1.c:8
+
+  This frame has 1 object(s):
+    [32, 82) 'input' (line 12) <== Memory access at offset 82 overflows this variable
+HINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork
+      (longjmp and C++ exceptions *are* supported)
+SUMMARY: AddressSanitizer: stack-buffer-overflow /home/joe/Documents/afl-training/challenges/libxml2/libxml2/xmlstring.c:70:12 in xmlStrdup
+Shadow bytes around the buggy address:
+  0x10005de71790: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x10005de717a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x10005de717b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x10005de717c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x10005de717d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+=>0x10005de717e0: 00 00 00 00 f1 f1 f1 f1 00 00 00 00 00 00[02]f3
+  0x10005de717f0: f3 f3 f3 f3 00 00 00 00 00 00 00 00 00 00 00 00
+  0x10005de71800: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x10005de71810: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x10005de71820: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x10005de71830: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+  Shadow gap:              cc
+==2024416==ABORTING
+```
+
+**harness-v2&v3.c**
+
+崩溃 1
+```
+joe@joe-virtual-machine:~/Documents/afl-training/challenges/libxml2$ ./harness-v2 crashes/harness-v2\&v3/id\:000000\,sig\:06\,src\:001114\,time\:854359\,op\:flip4\,pos\:17 
+crashes/harness-v2&v3/id:000000,sig:06,src:001114,time:854359,op:flip4,pos:17:1: parser error : Malformed declaration expecting version
+<?xml encoding="US�-8   �
+      ^
+crashes/harness-v2&v3/id:000000,sig:06,src:001114,time:854359,op:flip4,pos:17:1: parser error : Blank needed here
+<?xml encoding="US�-8   �
+      ^
+crashes/harness-v2&v3/id:000000,sig:06,src:001114,time:854359,op:flip4,pos:17:1: parser error : String not closed expecting " or '
+<?xml encoding="US�-8   �
+                  ^
+encoding error : input conversion failed due to input error, bytes 0xC6 0x2D 0x38 0x09
+crashes/harness-v2&v3/id:000000,sig:06,src:001114,time:854359,op:flip4,pos:17:1: parser error : switching encoding: encoder error
+""
+   ^
+crashes/harness-v2&v3/id:000000,sig:06,src:001114,time:854359,op:flip4,pos:17:1: parser error : Blank needed here
+""
+   ^
+encoding error : input conversion failed due to input error, bytes 0xC6 0x2D 0x38 0x09
+I/O error : encoder error
+crashes/harness-v2&v3/id:000000,sig:06,src:001114,time:854359,op:flip4,pos:17:1: parser error : parsing XML declaration: '?>' expected
+
+^
+=================================================================
+==2096894==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x621000002500 at pc 0x0000005147cd bp 0x7ffc65df5860 sp 0x7ffc65df5858
+READ of size 1 at 0x621000002500 thread T0
+    #0 0x5147cc in xmlParseXMLDecl /home/joe/Documents/afl-training/challenges/libxml2/libxml2/parser.c:10666:2
+    #1 0x515e9f in xmlParseDocument /home/joe/Documents/afl-training/challenges/libxml2/libxml2/parser.c:10771:2
+    #2 0x5316ab in xmlDoRead /home/joe/Documents/afl-training/challenges/libxml2/libxml2/parser.c:15298:5
+    #3 0x5316ab in xmlReadFile /home/joe/Documents/afl-training/challenges/libxml2/libxml2/parser.c:15360:13
+    #4 0x4c62ed in main /home/joe/Documents/afl-training/challenges/libxml2/harness-v2.c:11:21
+    #5 0x7ff525b080b2 in __libc_start_main /build/glibc-sMfBJT/glibc-2.31/csu/../csu/libc-start.c:308:16
+    #6 0x41c61d in _start (/home/joe/Documents/afl-training/challenges/libxml2/harness-v2+0x41c61d)
+
+0x621000002500 is located 0 bytes to the right of 4096-byte region [0x621000001500,0x621000002500)
+allocated by thread T0 here:
+    #0 0x49668d in malloc (/home/joe/Documents/afl-training/challenges/libxml2/harness-v2+0x49668d)
+    #1 0x684bae in xmlBufCreate /home/joe/Documents/afl-training/challenges/libxml2/libxml2/buf.c:136:32
+
+SUMMARY: AddressSanitizer: heap-buffer-overflow /home/joe/Documents/afl-training/challenges/libxml2/libxml2/parser.c:10666:2 in xmlParseXMLDecl
+Shadow bytes around the buggy address:
+  0x0c427fff8450: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0c427fff8460: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0c427fff8470: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0c427fff8480: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0c427fff8490: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+=>0x0c427fff84a0:[fa]fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c427fff84b0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c427fff84c0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c427fff84d0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c427fff84e0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c427fff84f0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+  Shadow gap:              cc
+==2096894==ABORTING
+```
+崩溃 2
+```
+joe@joe-virtual-machine:~/Documents/afl-training/challenges/libxml2$ ./harness-v2 crashes/harness-v2\&v3/id\:000001\,sig\:06\,src\:001114\,time\:854371\,op\:flip4\,pos\:20 
+crashes/harness-v2&v3/id:000001,sig:06,src:001114,time:854371,op:flip4,pos:20:1: parser error : Malformed declaration expecting version
+<?xml encoding="UTF-7   �
+      ^
+crashes/harness-v2&v3/id:000001,sig:06,src:001114,time:854371,op:flip4,pos:20:1: parser error : Blank needed here
+<?xml encoding="UTF-7   �
+      ^
+crashes/harness-v2&v3/id:000001,sig:06,src:001114,time:854371,op:flip4,pos:20:1: parser error : String not closed expecting " or '
+<?xml encoding="UTF-7   �
+                     ^
+encoding error : input conversion failed due to input error, bytes 0xAB 0x0D 0x22 0x1F
+crashes/harness-v2&v3/id:000001,sig:06,src:001114,time:854371,op:flip4,pos:20:1: parser error : switching encoding: encoder error
+""
+   ^
+encoding error : input conversion failed due to input error, bytes 0xAB 0x0D 0x22 0x1F
+I/O error : encoder error
+crashes/harness-v2&v3/id:000001,sig:06,src:001114,time:854371,op:flip4,pos:20:1: parser error : parsing XML declaration: '?>' expected
+
+        ^
+=================================================================
+==2153390==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x621000002500 at pc 0x0000005147cd bp 0x7ffda09219e0 sp 0x7ffda09219d8
+READ of size 1 at 0x621000002500 thread T0
+    #0 0x5147cc in xmlParseXMLDecl /home/joe/Documents/afl-training/challenges/libxml2/libxml2/parser.c:10666:2
+    #1 0x515e9f in xmlParseDocument /home/joe/Documents/afl-training/challenges/libxml2/libxml2/parser.c:10771:2
+    #2 0x5316ab in xmlDoRead /home/joe/Documents/afl-training/challenges/libxml2/libxml2/parser.c:15298:5
+    #3 0x5316ab in xmlReadFile /home/joe/Documents/afl-training/challenges/libxml2/libxml2/parser.c:15360:13
+    #4 0x4c62ed in main /home/joe/Documents/afl-training/challenges/libxml2/harness-v2.c:11:21
+    #5 0x7f25059470b2 in __libc_start_main /build/glibc-sMfBJT/glibc-2.31/csu/../csu/libc-start.c:308:16
+    #6 0x41c61d in _start (/home/joe/Documents/afl-training/challenges/libxml2/harness-v2+0x41c61d)
+
+0x621000002500 is located 0 bytes to the right of 4096-byte region [0x621000001500,0x621000002500)
+allocated by thread T0 here:
+    #0 0x49668d in malloc (/home/joe/Documents/afl-training/challenges/libxml2/harness-v2+0x49668d)
+    #1 0x684bae in xmlBufCreate /home/joe/Documents/afl-training/challenges/libxml2/libxml2/buf.c:136:32
+
+SUMMARY: AddressSanitizer: heap-buffer-overflow /home/joe/Documents/afl-training/challenges/libxml2/libxml2/parser.c:10666:2 in xmlParseXMLDecl
+Shadow bytes around the buggy address:
+  0x0c427fff8450: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0c427fff8460: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0c427fff8470: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0c427fff8480: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0c427fff8490: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+=>0x0c427fff84a0:[fa]fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c427fff84b0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c427fff84c0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c427fff84d0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c427fff84e0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c427fff84f0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+  Shadow gap:              cc
+==2153390==ABORTING
+```
+崩溃 3
+```
+~/Documents/afl-training/challenges/libxml2$ ./harness-v2 crashes/harness-v2\&v3/id\:000002\,sig\:06\,src\:001114\,time\:854809\,op\:arith16\,pos\:20\,val\:be\:-11 
+crashes/harness-v2&v3/id:000002,sig:06,src:001114,time:854809,op:arith16,pos:20,val:be:-11:1: parser error : Malformed declaration expecting version
+<?xml encoding="UTF-7��
+      ^
+crashes/harness-v2&v3/id:000002,sig:06,src:001114,time:854809,op:arith16,pos:20,val:be:-11:1: parser error : Blank needed here
+<?xml encoding="UTF-7��
+      ^
+crashes/harness-v2&v3/id:000002,sig:06,src:001114,time:854809,op:arith16,pos:20,val:be:-11:1: parser error : String not closed expecting " or '
+<?xml encoding="UTF-7��
+                     ^
+encoding error : input conversion failed due to input error, bytes 0xFE 0xAB 0x0D 0x22
+crashes/harness-v2&v3/id:000002,sig:06,src:001114,time:854809,op:arith16,pos:20,val:be:-11:1: parser error : switching encoding: encoder error
+""
+   ^
+crashes/harness-v2&v3/id:000002,sig:06,src:001114,time:854809,op:arith16,pos:20,val:be:-11:1: parser error : Blank needed here
+""
+   ^
+encoding error : input conversion failed due to input error, bytes 0xFE 0xAB 0x0D 0x22
+I/O error : encoder error
+crashes/harness-v2&v3/id:000002,sig:06,src:001114,time:854809,op:arith16,pos:20,val:be:-11:1: parser error : parsing XML declaration: '?>' expected
+
+^
+=================================================================
+==2177406==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x621000002500 at pc 0x0000005147cd bp 0x7fff7d348ae0 sp 0x7fff7d348ad8
+READ of size 1 at 0x621000002500 thread T0
+    #0 0x5147cc in xmlParseXMLDecl /home/joe/Documents/afl-training/challenges/libxml2/libxml2/parser.c:10666:2
+    #1 0x515e9f in xmlParseDocument /home/joe/Documents/afl-training/challenges/libxml2/libxml2/parser.c:10771:2
+    #2 0x5316ab in xmlDoRead /home/joe/Documents/afl-training/challenges/libxml2/libxml2/parser.c:15298:5
+    #3 0x5316ab in xmlReadFile /home/joe/Documents/afl-training/challenges/libxml2/libxml2/parser.c:15360:13
+    #4 0x4c62ed in main /home/joe/Documents/afl-training/challenges/libxml2/harness-v2.c:11:21
+    #5 0x7f8c4243f0b2 in __libc_start_main /build/glibc-sMfBJT/glibc-2.31/csu/../csu/libc-start.c:308:16
+    #6 0x41c61d in _start (/home/joe/Documents/afl-training/challenges/libxml2/harness-v2+0x41c61d)
+
+0x621000002500 is located 0 bytes to the right of 4096-byte region [0x621000001500,0x621000002500)
+allocated by thread T0 here:
+    #0 0x49668d in malloc (/home/joe/Documents/afl-training/challenges/libxml2/harness-v2+0x49668d)
+    #1 0x684bae in xmlBufCreate /home/joe/Documents/afl-training/challenges/libxml2/libxml2/buf.c:136:32
+
+SUMMARY: AddressSanitizer: heap-buffer-overflow /home/joe/Documents/afl-training/challenges/libxml2/libxml2/parser.c:10666:2 in xmlParseXMLDecl
+Shadow bytes around the buggy address:
+  0x0c427fff8450: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0c427fff8460: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0c427fff8470: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0c427fff8480: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0c427fff8490: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+=>0x0c427fff84a0:[fa]fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c427fff84b0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c427fff84c0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c427fff84d0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c427fff84e0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c427fff84f0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+  Shadow gap:              cc
+==2177406==ABORTING
+```
+崩溃 4
+```
+joe@joe-virtual-machine:~/Documents/afl-training/challenges/libxml2$ ./harness-v2 crashes/harness-v2\&v3/id\:000003\,sig\:06\,src\:001314\,time\:1151138\,op\:havoc\,rep\:2 
+crashes/harness-v2&v3/id:000003,sig:06,src:001314,time:1151138,op:havoc,rep:2:1: parser error : Malformed declaration expecting version
+<?xml encoding="UCS-4��-a>NMTOKE<N8-a> 
+      ^
+crashes/harness-v2&v3/id:000003,sig:06,src:001314,time:1151138,op:havoc,rep:2:1: parser error : Blank needed here
+<?xml encoding="UCS-4��-a>NMTOKE<N8-a> 
+      ^
+crashes/harness-v2&v3/id:000003,sig:06,src:001314,time:1151138,op:havoc,rep:2:1: parser error : String not closed expecting " or '
+<?xml encoding="UCS-4��-a>NMTOKE<N8-a> 
+                     ^
+encoding error : input conversion failed due to input error, bytes 0xE6 0xDA 0x2D 0x61
+crashes/harness-v2&v3/id:000003,sig:06,src:001314,time:1151138,op:havoc,rep:2:1: parser error : switching encoding: encoder error
+��-a>NMTOKE<N8-a> 
+                   ^
+crashes/harness-v2&v3/id:000003,sig:06,src:001314,time:1151138,op:havoc,rep:2:1: parser error : Blank needed here
+��-a>NMTOKE<N8-a> 
+                   ^
+encoding error : input conversion failed due to input error, bytes 0xE6 0xDA 0x2D 0x61
+I/O error : encoder error
+crashes/harness-v2&v3/id:000003,sig:06,src:001314,time:1151138,op:havoc,rep:2:1: parser error : parsing XML declaration: '?>' expected
+
+^
+=================================================================
+==2191499==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x621000002500 at pc 0x0000005147cd bp 0x7ffe84bf5b60 sp 0x7ffe84bf5b58
+READ of size 1 at 0x621000002500 thread T0
+    #0 0x5147cc in xmlParseXMLDecl /home/joe/Documents/afl-training/challenges/libxml2/libxml2/parser.c:10666:2
+    #1 0x515e9f in xmlParseDocument /home/joe/Documents/afl-training/challenges/libxml2/libxml2/parser.c:10771:2
+    #2 0x5316ab in xmlDoRead /home/joe/Documents/afl-training/challenges/libxml2/libxml2/parser.c:15298:5
+    #3 0x5316ab in xmlReadFile /home/joe/Documents/afl-training/challenges/libxml2/libxml2/parser.c:15360:13
+    #4 0x4c62ed in main /home/joe/Documents/afl-training/challenges/libxml2/harness-v2.c:11:21
+    #5 0x7f35503610b2 in __libc_start_main /build/glibc-sMfBJT/glibc-2.31/csu/../csu/libc-start.c:308:16
+    #6 0x41c61d in _start (/home/joe/Documents/afl-training/challenges/libxml2/harness-v2+0x41c61d)
+
+0x621000002500 is located 0 bytes to the right of 4096-byte region [0x621000001500,0x621000002500)
+allocated by thread T0 here:
+    #0 0x49668d in malloc (/home/joe/Documents/afl-training/challenges/libxml2/harness-v2+0x49668d)
+    #1 0x684bae in xmlBufCreate /home/joe/Documents/afl-training/challenges/libxml2/libxml2/buf.c:136:32
+
+SUMMARY: AddressSanitizer: heap-buffer-overflow /home/joe/Documents/afl-training/challenges/libxml2/libxml2/parser.c:10666:2 in xmlParseXMLDecl
+Shadow bytes around the buggy address:
+  0x0c427fff8450: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0c427fff8460: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0c427fff8470: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0c427fff8480: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0c427fff8490: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+=>0x0c427fff84a0:[fa]fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c427fff84b0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c427fff84c0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c427fff84d0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c427fff84e0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c427fff84f0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+  Shadow gap:              cc
+==2191499==ABORTING
+```
+
+根据 crash 搜索相关的 CVE
+
+![](./images/14.jpg)
+
+很遗憾，前面的 crash 没有找到 CVE，我也无法判断这是不是一个 CVE。待续……
+TODO
+
 # 总结
 
 Harness 的编写，字典的收集都还是一个难点。后续的例子尽可能往这两个方向去学习吧。
+
 
 
 参考文档：
