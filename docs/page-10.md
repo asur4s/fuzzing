@@ -120,6 +120,7 @@ afl-fuzz -m none -i in/ -o out -x ~/Documents/AFLplusplus/dictionaries/xml.dict 
 # TODO：一直处在崩溃的状态，不懂得如何处理
 ```
 运行结果
+
 ![](./images/12.jpg)
 
 只跑了 2 分钟就跑出了 crash，后续一直处在产生同样的 crash。
@@ -188,13 +189,16 @@ afl-fuzz -m none -i in/ -o out -x ~/Documents/AFLplusplus/dictionaries/xml.dict 
 运行结果如下所示
 
 ![](./images/13.jpg)
+
 只用了 30 分钟，就跑出了 2300 的路径，4 个 crash。
 
 # 语料库
 
+在上面的例子中，我并没有对输入数据进行调整，都是参考的 answer 中给出的种子，还有就是利用 afl 自带的 dictionary。
 
+目前可以不用很在意这一部分，AFL是一款基于变异的模糊测试工具，只要输入能被正常的读取并处理，一切都好说（只要足够欧x）。
 
-
+目前先主要把精力集中在编写出能让 AFL 稳定且快速运行的 harness。
 
 # 总结
 
