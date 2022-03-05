@@ -9,6 +9,8 @@
 2. 控制一些无关变量，并在上一步的基础上增加输入。
 3. 合理利用 Fuzzer 工具的特性，提升 Fuzz 速度。
 
+## 简单使用
+
 首先安装 afl-training 所说的，先编译 libxml2 库，然后再使用。
 ```bash
 # 下载子模块
@@ -24,7 +26,64 @@ AFL_USE_ASAN=1 make -j 4
 sudo make install
 # 卸载 libxml2
 ```
-再到网上找
+再到网上找一些简单的使用案例：
+**1、创建 xml**
+```c
+#include<stdio.h>
+#include<libxml/parser.h>
+#include<libxml/tree.h>
+
+
+int main(int argc, char **argv){
+    // 因为总是要在 xmlChar* 和char*之间进行类型转换，所以定义了一个宏 BAD_CAST
+    // #define BAD_CAST (xmlChar *)
+    xmlDocPtr doc = xmlNewDoc(BAD_CAST"1.0");
+    xmlNodePtr rootNode = xmlNewNode(NULL, BAD_CAST"root");
+    printf("success\n");
+    xmlFreeDoc(doc);
+    return 0;
+}
+```
+编译运行
+ 
+```bash
+afl-clang-fast example1.c -I libxml2/include/ -lxml2 -o example1
+./example1
+# 输出 success
+```
+**2、解析 xml**
+```c
+#include<stdio.h>
+#include<libxml/parser.h>
+#include<libxml/tree.h>
+
+// question：为什么Harness只是对文件进行初始化后就释放了？（answer：这个位置可探索的路径多，如果写得比较多就很难判断漏洞的位置）
+// 攻击面？我尝试了以下创建文件，也找到了crash但不会判断是否存在漏洞。
+int main(int argc, char **argv){
+    xmlDocPtr doc = xmlReadFile("test.xml", NULL, 0);
+    if(doc != NULL){
+        xmlFreeDoc(doc);
+    }
+}
+// 创建 test.xml 并在里面写入一个简单的xml。
+```
+编译运行
+ 
+```bash
+afl-clang-fast example2.c -I libxml2/include/ -lxml2 -o example1
+./example2
+# 输出 success
+```
+
+# 改进Harness
+
+
+
+# 语料库
+
+
+
+
 
 # 总结
 
