@@ -29,6 +29,7 @@ sudo make install
 再到网上找一些简单的使用案例：
 **1、创建 xml**
 ```c
+// example1.c
 #include<stdio.h>
 #include<libxml/parser.h>
 #include<libxml/tree.h>
@@ -53,6 +54,7 @@ afl-clang-fast example1.c -I libxml2/include/ -lxml2 -o example1
 ```
 **2、解析 xml**
 ```c
+// example2.c
 #include<stdio.h>
 #include<libxml/parser.h>
 #include<libxml/tree.h>
@@ -73,6 +75,81 @@ int main(int argc, char **argv){
 afl-clang-fast example2.c -I libxml2/include/ -lxml2 -o example1
 ./example2
 # 输出 success
+```
+
+# harness
+
+**harness-v1.c**
+
+在使用的基础上，增加输入功能就可以得到 Harness 了。
+```c
+// harness-v1.c
+#include<stdio.h>
+#include<libxml/parser.h>
+#include<libxml/tree.h>
+#include<unistd.h>
+
+#define SIZE 50
+
+int main(int argc, char **argv){
+    // 因为总是要在 xmlChar* 和char*之间进行类型转换，所以定义了一个宏 BAD_CAST
+    // #define BAD_CAST (xmlChar *)
+    
+    char input[SIZE] = {0};
+    read(STDIN_FILENO, input, SIZE);
+
+    xmlDocPtr doc = xmlNewDoc(BAD_CAST"1.0");
+    xmlNodePtr rootNode = xmlNewNode(NULL, BAD_CAST input);
+    xmlFreeDoc(doc);
+    
+    return 0;
+}
+```
+编译，Fuzz
+```bash
+# TODO
+# 我最开始使用的这种命令来编译运行，结果发现一直无法找到新路径（last new path : none yet (odd, check syntax!)），不清楚具体原因
+AFL_USE_ASAN=1 afl-clang-fast ./harness-v1.c -I /usr/local/include/libxml2 -lxml2 -o harness
+# 参考 answer 的编译命令
+AFL_USE_ASAN=1 afl-clang-fast ./harness-v1.c -I libxml2/include libxml2/.libs/libxml2.a -lz -lm -o harness
+# fuzz（标准输入获取数据）
+mkdir in
+cd in && echo "<hi><hi/>" > hi.xml && cd ..
+afl-fuzz -m none -i in/ -o out -x ~/Documents/AFLplusplus/dictionaries/xml.dict ./harness
+# TODO：一直处在崩溃的状态，不懂得如何处理
+```
+运行结果
+![](./images/12.jpg)
+
+
+**harness-v2.c**
+
+同理，可以将 example2.c 改写成 harness-v2.c
+```c
+// harness-v2.c
+#include<stdio.h>
+#include<libxml/parser.h>
+#include<libxml/tree.h>
+#include<unistd.h>
+
+int main(int argc, char **argv){
+    // 因为总是要在 xmlChar* 和char*之间进行类型转换，所以定义了一个宏 BAD_CAST
+    // #define BAD_CAST (xmlChar *)
+
+    xmlDocPtr doc = xmlReadFile(argv[1], NULL, 0);
+    if(doc != NULL){
+        xmlFreeDoc(doc);
+    }
+    
+    return 0;
+}
+```
+编译，并尝试fuzz
+```bash
+AFL_USE_ASAN=1 afl-clang-fast ./harness-v2.c -I libxml2/include libxml2/.libs/libxml2.a -lz -lm -o harness
+
+# 注意！！文件输入和标准输入不同，文件输入需要使用 @@ 来代替文件名
+afl-fuzz -m none -i in/ -o out -x ~/Documents/AFLplusplus/dictionaries/xml.dict ./harness @@ 
 ```
 
 # 改进Harness
