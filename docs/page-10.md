@@ -77,7 +77,7 @@ afl-clang-fast example2.c -I libxml2/include/ -lxml2 -o example1
 # 输出 success
 ```
 
-# harness
+# Harness
 
 **harness-v1.c**
 
@@ -196,11 +196,15 @@ afl-fuzz -m none -i in/ -o out -x ~/Documents/AFLplusplus/dictionaries/xml.dict 
 
 在上面的例子中，我并没有对输入数据进行调整，都是参考的 answer 中给出的种子，还有就是利用 afl 自带的 dictionary。
 
-目前可以不用很在意这一部分，AFL是一款基于变异的模糊测试工具，只要输入能被正常的读取并处理，一切都好说（只要足够欧x）。
+~~目前可以不用很在意这一部分，AFL是一款基于变异的模糊测试工具，只要输入能被正常的读取并处理，一切都好说（只要足够欧x）。~~
 
-目前先主要把精力集中在编写出能让 AFL 稳定且快速运行的 harness。
+~~目前先主要把精力集中在编写出能让 AFL 稳定且快速运行的 harness。~~
 
-# crash
+又找了一些对 libxml2 进行模糊测试的教程，我改变了刚刚的想法，我应该继续对 libxml2 进行模糊测试，并改进自己的测试方案，在这一过程中学习如何 fuzzing。
+
+如果又迅速转移到下一个项目，又需要重新编译，学习新库的使用方法，自己会一直在思考较低级的问题而导致停滞不前。
+
+# crashes
 
 harness-v1.c 是创建 xml，而 v2 和 v3 是解析 xml，后两个的 crash 都可以通过。
 
@@ -559,11 +563,12 @@ Shadow byte legend (one shadow byte represents 8 application bytes):
 ==2191499==ABORTING
 ```
 
-根据 crash 搜索相关的 CVE
+根据 crash 搜索相关的 CVE，搜到了 CVE-2015-8317。
 
 ![](./images/14.jpg)
 
-很遗憾，前面的 crash 没有找到 CVE，我也无法判断这是不是一个 CVE。待续……
+很遗憾，harness-v1.c 的 crash 没有找到 CVE，我也无法判断这是不是一个 CVE。待续……
+
 TODO
 
 # 总结
