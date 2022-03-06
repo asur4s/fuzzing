@@ -9,6 +9,48 @@
 
 # 多核并行模糊测试
 
+Fuzzing010 使用的 libxml2 是 2.9.4，但我在上一篇文章使用的案例是 2.9.2，所以没有找到 xmllint 程序。
+
+在做完了 Fuzzing010 的实验之后，我又回来使用上一篇文章中的 Harness 进行模糊测试。
+
+大体思路是一致的：
+- 准备调用lib库的程序。
+- 准备字典
+- 模糊测试
+
+多核并行模糊测试主要是压榨自己电脑的性能来跑 Fuzzing。如果没有配置多核并行直接跑多个模糊测试，各个Fuzzing进程可能会有重复的路径，自己无法区分，导致很难对 Fuzzing 的程度进行判断。
+
+在上一篇文章中，运行模糊测试的命令如下所示
+
+```bash 
+afl-fuzz -m none -i in -o out -x ~/Documents/AFLplusplus/dictionaries/xml.dict -- ./harness-v3 @@
+```
+只需要将命令改成下面这种形式即可
+```bash
+# 主 Fuzzing 程序
+afl-fuzz -m none -i in -o out -s 123 -x ~/Documents/AFLplusplus/dictionaries/xml.dict -D -M fuzzer1 -- ./harness-v3 @@
+# 从 Fuzzing 程序
+afl-fuzz -m none -i in -o out -s 233 -x ~/Documents/AFLplusplus/dictionaries/xml.dict -S fuzzer2 -- ./harness-v3 @@
+afl-fuzz -m none -i in -o out -s 345 -x ~/Documents/AFLplusplus/dictionaries/xml.dict -S fuzzer3 -- ./harness-v3 @@
+```
+在命令中多加了 3 个参数：
+- -s：设置种子，让不同的 Fuzzing 进程尽量使用不同的输入
+- -M/-S：设置主从 Fuzzing 程序的名字。
+- -D：只能主 Fuzzing 程序，强制执行确定性模糊测试。
+
+其他参数含义：
+- --：后面跟执行 Harness 的命令。
+- @@：afl-fuzz 会将文件名放到 @@ 所在的位置。
+
+命令执行成功后的效果如下所示
+
+![](./images/18.jpg)
+
+使用 htop 查看 CPU 情况
+
+![](./images/19.jpg)
+
+使用了两个 Fuzzing 程序，占用两颗 CPU。
 
 # 效果对比
 
