@@ -134,6 +134,77 @@ Shadow byte legend (one shadow byte represents 8 application bytes):
 
 上一次的 CVE 编号是 `CVE-2015-8317`，累计找到两个历史 CVE。
 
+# 又一个历史CVE
+
+我试着延长了一下Fuzzing时间（持久模式+多核并行模式），又找到了另一个 CVE。崩溃信息如下所示
+
+```
+joe@joe-virtual-machine:~/Documents/afl-training/challenges/libxml2$ ./harness-v2 ./outCopy/fuzzer2/crashes/id\:000001\,sig\:06\,src\:004494\,time\:3178209\,op\:havoc\,rep\:2 
+./outCopy/fuzzer2/crashes/id:000001,sig:06,src:004494,time:3178209,op:havoc,rep:2:6901: namespace warning : xmlns: URI 1 is not absolute
+ xmlns="1"
+          ^
+=================================================================
+==3305202==ERROR: AddressSanitizer: heap-use-after-free on address 0x625000001116 at pc 0x0000007466f0 bp 0x7fff3bb5c050 sp 0x7fff3bb5c048
+READ of size 1 at 0x625000001116 thread T0
+    #0 0x7466ef in xmlSAX2AttributeNs /home/joe/Documents/afl-training/challenges/libxml2/libxml2/SAX2.c:2035:6
+    #1 0x7443a0 in xmlSAX2StartElementNs /home/joe/Documents/afl-training/challenges/libxml2/libxml2/SAX2.c
+    #2 0x50f94a in xmlParseStartTag2 /home/joe/Documents/afl-training/challenges/libxml2/libxml2/parser.c
+    #3 0x5068b3 in xmlParseElement /home/joe/Documents/afl-training/challenges/libxml2/libxml2/parser.c:10069:16
+    #4 0x516538 in xmlParseDocument /home/joe/Documents/afl-training/challenges/libxml2/libxml2/parser.c:10841:2
+    #5 0x5316ab in xmlDoRead /home/joe/Documents/afl-training/challenges/libxml2/libxml2/parser.c:15298:5
+    #6 0x5316ab in xmlReadFile /home/joe/Documents/afl-training/challenges/libxml2/libxml2/parser.c:15360:13
+    #7 0x4c62ed in main /home/joe/Documents/afl-training/challenges/libxml2/harness-v2.c:11:21
+    #8 0x7f467fc430b2 in __libc_start_main /build/glibc-sMfBJT/glibc-2.31/csu/../csu/libc-start.c:308:16
+    #9 0x41c61d in _start (/home/joe/Documents/afl-training/challenges/libxml2/harness-v2+0x41c61d)
+
+0x625000001116 is located 4118 bytes inside of 8194-byte region [0x625000000100,0x625000002102)
+freed by thread T0 here:
+    #0 0x4969a9 in realloc (/home/joe/Documents/afl-training/challenges/libxml2/harness-v2+0x4969a9)
+    #1 0x686799 in xmlBufGrowInternal /home/joe/Documents/afl-training/challenges/libxml2/libxml2/buf.c:472:23
+
+previously allocated by thread T0 here:
+    #0 0x49668d in malloc (/home/joe/Documents/afl-training/challenges/libxml2/harness-v2+0x49668d)
+    #1 0x684f61 in xmlBufCreateSize /home/joe/Documents/afl-training/challenges/libxml2/libxml2/buf.c:171:36
+
+SUMMARY: AddressSanitizer: heap-use-after-free /home/joe/Documents/afl-training/challenges/libxml2/libxml2/SAX2.c:2035:6 in xmlSAX2AttributeNs
+Shadow bytes around the buggy address:
+  0x0c4a7fff81d0: fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd
+  0x0c4a7fff81e0: fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd
+  0x0c4a7fff81f0: fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd
+  0x0c4a7fff8200: fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd
+  0x0c4a7fff8210: fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd
+=>0x0c4a7fff8220: fd fd[fd]fd fd fd fd fd fd fd fd fd fd fd fd fd
+  0x0c4a7fff8230: fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd
+  0x0c4a7fff8240: fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd
+  0x0c4a7fff8250: fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd
+  0x0c4a7fff8260: fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd
+  0x0c4a7fff8270: fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+  Shadow gap:              cc
+==3305202==ABORTING
+```
+根据报错信息寻找CVE。CVE 编号为 CVE-2016-1835。
+
+
+
 ---
 
 参考文档：

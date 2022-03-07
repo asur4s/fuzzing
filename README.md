@@ -15,6 +15,7 @@ TODO:
 ## 2022
 
 **三月**
+- [【Fuzzing 8】libfuzzer例子 1-libxml2](./docs/page-12.md)
 - [【Fuzzing 7】AFL例子 4-对 libxml2 多核并行模糊测试](./docs/page-11.md)
 - [【Fuzzing 6】AFL例子 3-对 libxml2 进行模糊测试](./docs/page-10.md)
 - [【Fuzzing 5】AFL例子 2-Harness 编写](./docs/page-9.md)
