@@ -1,15 +1,12 @@
 # 个人博客
 
-TODO:
-- 【Fuzzing x】套接字模糊测试3
-- 【Fuzzing x】套接字模糊测试2
-- 【Fuzzing x】套接字模糊测试1
-- 【Fuzzing x】jafuzz 环境搭建
-- 【Fuzzing x】AFL例子2-Harness编写
-- 【Fuzzing x】AFL主要组件及其交互
-- 【Fuzzing x】AFL例子4-对FFMpeg进行模糊测试
-- 【Fuzzing x】AFL例子3-对TCPDump进行模糊测试
-- 【Fuzzing x】对crash分类
+我通过 Fuzzing 找到的 1 day（历史 CVE）：累计 5 个
+- CVE-2015-7497
+- CVE-2015-8317
+- CVE-2016-1835
+- CVE-2019-13288
+- CVE-2020-19468
+
 
 
 ## 2022
