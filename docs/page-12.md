@@ -44,3 +44,28 @@ cd ~/Documents/fuzzingXpdf
 
 # 对目标进行模糊测试
 
+在 Fuzzing010 中，并没有使用 ASAN，而是直接使用 gdb。我还是继续使用 ASAN 叭，方便对 crash 进行判断。首先对二进制程序重新编译
+```bash
+# 清空
+cd ~/Documents/fuzzingXpdf
+rm -rf install
+cd ~/Documents/fuzzingXpdf/xpdf-3.02
+make clean
+
+# 重新编译
+# configure 只是生成 makefile
+CC=afl-clang-fast CXX=afl-clang-fast++ ./configure --prefix="$HOME/Documents/fuzzingXpdf/install/"
+# 设置ASAN模式
+AFL_USE_ASAN=1 make -j 4
+make install
+```
+对二进制程序进行模糊测试
+```bash
+# 多核并行fuzzing
+afl-fuzz -i pdfExamples/ -o out -s 123 -x ~/Documents/AFLplusplus/dictionaries/pdf.dict -D -M fuzzer1 -- ./install/bin/pdftotext @@ output
+afl-fuzz -i pdfExamples/ -o out -s 234 -x ~/Documents/AFLplusplus/dictionaries/pdf.dict -S fuzzer2 -- ./install/bin/pdftotext @@ output2
+```
+
+Fuzzing010 的作者只用了 18 分钟 Orz，我用了 30 分钟跑出 crash
+
+![](./images/21.jpg)
