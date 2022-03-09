@@ -85,5 +85,15 @@ unzip master.zip
 
 # 模糊测试
 
+使用下面的命令进行模糊测试
+```bash
+afl-fuzz -i exif-samples-master/jpg/ -o out -s 123 -x ~/2022/AFLplusplus/dictionaries/exif.dict -D -M fuzzer1 -- ./install/bin/exif @@
+
+afl-fuzz -i exif-samples-master/jpg/ -o out -s 345 -x ~/2022/AFLplusplus/dictionaries/exif.dict -D -S fuzzer2 -- ./install/bin/exif @@
+```
+
+不到 1 分钟就有 crash 了，orz
+
+![](./images/22.png)
 
 # crash
