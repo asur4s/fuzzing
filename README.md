@@ -12,6 +12,7 @@
 ## 2022
 
 **三月**
+- [【Fuzzing 9】AFL例子 6-libexif](./docs/page-13.md)
 - [【Fuzzing 8】AFL例子 5-xpdf](./docs/page-12.md)
 - [【Fuzzing 7】AFL例子 4-对 libxml2 多核并行模糊测试](./docs/page-11.md)
 - [【Fuzzing 6】AFL例子 3-对 libxml2 进行模糊测试](./docs/page-10.md)

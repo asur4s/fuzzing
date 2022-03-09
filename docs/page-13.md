@@ -47,7 +47,7 @@ sudo apt-get install autopoint libtool gettext libpopt-dev
 # 编译
 autoreconf -fvi
 CC=afl-clang-lto ./configure --enable-shared=no --prefix="$HOME/2022/fuzzing_libexif/install/"
-make -j 4
+AFL_USE_ASAN=1 make -j 4
 make install
 # 我在make install的时候发现有error信息，不过可以正常得到依赖文件，就没管了
 ```
@@ -63,7 +63,7 @@ tar -xzvf exif-0_6_15-release.tar.gz
 cd exif-exif-0_6_15-release/
 autoreconf -fvi
 ./configure --enable-shared=no --prefix="$HOME/2022/fuzzing_libexif/install/" PKG_CONFIG_PATH="$HOME/2022/fuzzing_libexif/install/lib/pkgconfig"
-make -j 4
+AFL_USE_ASAN=1 make -j 4
 make install
 ```
 
@@ -96,4 +96,10 @@ afl-fuzz -i exif-samples-master/jpg/ -o out -s 345 -x ~/2022/AFLplusplus/diction
 
 ![](./images/22.png)
 
+运行了 1 h，大约获得了 22 个 crash。
+
 # crash
+
+
+参考教程：
+- [Fuzzing101 with LibAFL - Part II: Fuzzing libexif](https://epi052.gitlab.io/notes-to-self/blog/2021-11-07-fuzzing-101-with-libafl-part-2/#triage)

@@ -1,3 +1,0 @@
-# environment variables:
-# command line:
-'afl-fuzz' '-i' 'exif-samples-master/jpg/' '-o' 'out' '-s' '345' '-x' '/home/joe/2022/AFLplusplus/dictionaries/exif.dict' '-D' '-S' 'fuzzer2' '--' './install/bin/exif' '@@'
