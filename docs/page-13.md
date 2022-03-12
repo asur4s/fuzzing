@@ -62,7 +62,7 @@ tar -xzvf exif-0_6_15-release.tar.gz
 # 编译安装
 cd exif-exif-0_6_15-release/
 autoreconf -fvi
-./configure --enable-shared=no --prefix="$HOME/2022/fuzzing_libexif/install/" PKG_CONFIG_PATH="$HOME/2022/fuzzing_libexif/install/lib/pkgconfig"
+CC=afl-clang-lto ./configure --enable-shared=no --prefix="$HOME/2022/fuzzing_libexif/install/" PKG_CONFIG_PATH="$HOME/2022/fuzzing_libexif/install/lib/pkgconfig"
 AFL_USE_ASAN=1 make -j 4
 make install
 ```
@@ -87,9 +87,10 @@ unzip master.zip
 
 使用下面的命令进行模糊测试
 ```bash
-afl-fuzz -i exif-samples-master/jpg/ -o out -s 123 -x ~/2022/AFLplusplus/dictionaries/exif.dict -D -M fuzzer1 -- ./install/bin/exif @@
+afl-fuzz -m none -i exif-samples-master/jpg/ -o out -s 123 -x ~/2022/AFLplusplus/dictionaries/exif.dict -D -M fuzzer1 -- ./install/bin/exif @@
 
-afl-fuzz -i exif-samples-master/jpg/ -o out -s 345 -x ~/2022/AFLplusplus/dictionaries/exif.dict -D -S fuzzer2 -- ./install/bin/exif @@
+afl-fuzz -m none -i exif-samples-master/jpg/ -o out -s 345 -x ~/2022/AFLplusplus/dictionaries/exif.dict -D -S fuzzer2 -- ./install/bin/exif @@
+afl-fuzz -m none -i exif-samples-master/jpg/ -o out -s 678 -x ~/2022/AFLplusplus/dictionaries/exif.dict -D -S fuzzer3 -- ./install/bin/exif @@
 ```
 
 不到 1 分钟就有 crash 了，orz
@@ -100,7 +101,7 @@ afl-fuzz -i exif-samples-master/jpg/ -o out -s 345 -x ~/2022/AFLplusplus/diction
 
 # crash
 
-这次开始使用 crash 自动分类的工具——AFLTriage。不过最后的效果不是很理想，打算重新跑一遍 Fuzz，再进行一次分类。
+这次开始使用 crash 自动分类的工具——AFLTriage。不过最后的效果不是很理想，打算重新跑一遍 Fuzz，再进行一次分类（没有使用ASAN）。
 
 今天主要了解编译和使用方法
 ```bash
@@ -152,7 +153,18 @@ drwxrwxr-x 8 joe joe 4096 Mar 10 14:42 ..
 -rw-rw-r-- 1 joe joe 4866 Mar 10 15:07 afltriage_SIGSEGV___memmove_sse2_unaligned_erms_374cd3ced7a798dab4fd73ded96799a8.txt
 -rw-rw-r-- 1 joe joe 5026 Mar 10 15:07 afltriage_SIGSEGV___memmove_sse2_unaligned_erms_d225fb22089b51364d435e87c5ed4b79.txt
 -rw-rw-r-- 1 joe joe 6384 Mar 10 15:07 afltriage_SIGSEGV___memmove_sse2_unaligned_erms_d8d3f1a2cd1e9067f9a2e61fc307ff9b.txt
+
 ```
+
+# 重新分类 crash
+
+在前面的步骤中，有些参数没有弄好就开始测试，导致最后的试验结果有一点问题。于是我重新编译，并使用 3 个核心跑了 10 h，得到 180 多个 crash。
+
+![](./images/24.png)
+
+使用 AFLTraige 分类的效果如下所示
+
+![](./images/25.png)
 
 参考教程：
 - [Fuzzing101 with LibAFL - Part II: Fuzzing libexif](https://epi052.gitlab.io/notes-to-self/blog/2021-11-07-fuzzing-101-with-libafl-part-2/#triage)
