@@ -166,6 +166,8 @@ drwxrwxr-x 8 joe joe 4096 Mar 10 14:42 ..
 
 ![](./images/25.png)
 
+找到 CVE-2012-2836、
+
 参考教程：
 - [Fuzzing101 with LibAFL - Part II: Fuzzing libexif](https://epi052.gitlab.io/notes-to-self/blog/2021-11-07-fuzzing-101-with-libafl-part-2/#triage)
 - [【完美解决】git clone速度太慢的问题](https://blog.csdn.net/u013277209/article/details/108344344)
